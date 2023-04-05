@@ -15,7 +15,7 @@ class Scanner:
 
     def get_next_token(self):
         index = self.line_pointer
-        if self.lineno - 1 > len(self.lines):
+        if self.lineno - 1 >= len(self.lines):
             return -1, 'EOF'
         line = self.lines[self.lineno - 1]
         while len(line) == 0:
@@ -59,12 +59,13 @@ class Scanner:
                 if current_token in self.keywords:
                     token_type = TokenTypes.KEYWORD
 
-                if line[index] in self.whitespaces or \
+                if len(line) == index or \
+                        line[index] in self.whitespaces or \
                         line[index] in self.symbols or \
                         line[index:index + 2] == '/*':
                     find_token = True
 
-            elif ch == '/' and line[index + 1] == '*':  # comment
+            elif ch == '/' and index + 1 < len(line) and line[index + 1] == '*':  # comment
                 dummy = 0
                 dummy_comment = ''
                 while line[index:index + 2] != '*/':
