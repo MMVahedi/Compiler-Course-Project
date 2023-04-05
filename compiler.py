@@ -13,4 +13,4 @@ for i in range(100):
 # token = None
 # while(True): #TODO token != EOF
 #
-#       token = scanner.get_next_token()
+#       line, token = scanner.get_next_token()

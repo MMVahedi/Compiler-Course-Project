@@ -1,3 +1,6 @@
+from exceptions import *
+
+
 class Scanner:
     def __init__(self, filename):
         self.filename = filename
@@ -17,18 +20,13 @@ class Scanner:
         token_type = None
         find_token = False
         while not find_token:
-            if index == len(line):
-                self.lineno += 1
-                line = self.lines[self.lineno - 1]
-                self.line_pointer = 0
-                index = 0
             ch = line[index]
             if ch in self.symbols:  # symbol
                 token_type = TokenTypes.SYMBOL
                 current_token += ch
                 index += 1
-                if ch == '=' and line[index + 1] == '=':
-                    current_token += line[index + 1]
+                if ch == '=' and line[index] == '=':
+                    current_token += line[index]
                     index += 1
 
                 find_token = True
@@ -43,10 +41,10 @@ class Scanner:
                 if line[index] in self.whitespaces or \
                         line[index] in self.symbols or \
                         line[index:index + 2] == '/*':
-
                     find_token = True
 
-            elif ch.isalpha() or (line[index].isdigit() and token_type == TokenTypes.ID):  # id or keyword
+            elif (ch.isalpha() and (token_type == TokenTypes.ID or token_type is None)) or \
+                    (ch.isdigit() and token_type == TokenTypes.ID):  # id or keyword
                 token_type = TokenTypes.ID
                 current_token += ch
                 index += 1
@@ -55,16 +53,33 @@ class Scanner:
 
                 if line[index] in self.whitespaces or \
                         line[index] in self.symbols or \
-                        line[index :index + 2] == '/*':
+                        line[index:index + 2] == '/*':
                     find_token = True
 
             elif ch == '/' and line[index + 1] == '*':  # comment
                 while line[index:index + 2] != '*/':
                     index += 1
+                    if index == len(line):
+                        self.lineno += 1
+                        line = self.lines[self.lineno - 1]
+                        self.line_pointer = 0
+                        index = 0
+                    if self.line_pointer == len(line) and self.lineno == len(self.lines):
+                        # raise Unmatched Comment error here because we have no more lines to read
+                        raise UnclosedComment('Unclosed comment', self.lineno)
+
                 index += 2
+                if index == len(line):
+                    self.lineno += 1
+                    line = self.lines[self.lineno - 1]
+                    self.line_pointer = 0
+                    index = 0
+
             elif ch in self.whitespaces:  # whitespace
                 index += 1
             else:
+                raise InvalidInput('Invalid input', self.lineno)
+                index += 1
                 # TODO : Error handle con pedarsag
                 pass
 
@@ -72,7 +87,7 @@ class Scanner:
         if index == len(line):
             self.lineno += 1
             self.line_pointer = 0
-        return Token(token_type, current_token)
+        return self.lineno, Token(token_type, current_token)
 
 
 from enum import Enum
