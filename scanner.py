@@ -33,9 +33,17 @@ class Scanner:
                 token_type = TokenTypes.SYMBOL
                 current_token += ch
                 index += 1
-                if ch == '=' and line[index] == '=':
-                    current_token += line[index]
-                    index += 1
+                if ch == '=':
+                    next_ch = line[index]
+                    if next_ch == '=':
+                        current_token += line[index]
+                        index += 1
+
+                    elif not (next_ch.isdigit() or (next_ch in self.symbols) or next_ch.isalpha() or (
+                            next_ch in self.whitespaces)):
+                        index += 1
+                        self.line_pointer = index
+                        raise InvalidInput('Invalid input', self.lineno, ch + next_ch)
 
                 find_token = True
 
