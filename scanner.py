@@ -68,6 +68,7 @@ class Scanner:
             elif ch == '/' and index + 1 < len(line) and line[index + 1] == '*':  # comment
                 dummy = 0
                 dummy_comment = ''
+                current_line = self.lineno
                 while line[index:index + 2] != '*/':
                     if dummy <= 6:
                         dummy_comment += line[index]
@@ -80,7 +81,7 @@ class Scanner:
                         index = 0
                     if self.lineno - 1 >= len(self.lines):
                         # raise Unmatched Comment error here because we have no more lines to read
-                        raise UnclosedComment('Unclosed comment', self.lineno, dummy_comment + '...')
+                        raise UnclosedComment('Unclosed comment', current_line, dummy_comment + '...')
 
                 index += 2
                 if index == len(line):
@@ -102,25 +103,29 @@ class Scanner:
             else:
                 index += 1
                 self.line_pointer = index
+                current_line = self.lineno
                 if index >= len(line):
                     self.lineno += 1
                     self.line_pointer = 0
                 if token_type == TokenTypes.NUM and ch.isalpha():
-                    raise InvalidNumber('Invalid number', self.lineno, current_token + ch)
+                    raise InvalidNumber('Invalid number', current_line, current_token + ch)
                 if ch == '*' and line[index] == '/':
                     index += 1
+
                     if index >= len(line):
                         self.lineno += 1
                         self.line_pointer = 0
-                    raise UnmatchedComment('Unmatched comment', self.lineno, '*/')
+                    raise UnmatchedComment('Unmatched comment', current_line, '*/')
 
-                raise InvalidInput('Invalid input', self.lineno, current_token + ch)
+                raise InvalidInput('Invalid input', current_line, current_token + ch)
 
         self.line_pointer = index
+        current_line = self.lineno
         if index == len(line):
             self.lineno += 1
             self.line_pointer = 0
-        return self.lineno, Token(token_type, current_token)
+
+        return current_line, Token(token_type, current_token)
 
 
 from enum import Enum
