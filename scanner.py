@@ -29,7 +29,10 @@ class Scanner:
         find_token = False
         while not find_token:
             ch = line[index]
-            if ch in self.symbols and not (ch == '*' and line[index + 1] == '/'):  # symbol
+            if (ch in self.symbols) and not (ch == '*' and line[index + 1] == '/') and ch != '/' and not (
+                    ch == '*' and not (
+                    line[index + 1].isdigit() or (line[index + 1] in self.symbols) or line[index + 1].isalpha() or (
+                    line[index + 1] in self.whitespaces))):  # symbol
                 token_type = TokenTypes.SYMBOL
                 current_token += ch
                 index += 1
@@ -38,23 +41,27 @@ class Scanner:
                     if next_ch == '=':
                         current_token += line[index]
                         index += 1
-
+                    elif next_ch == '/':
+                        find_token = True
                     elif not (next_ch.isdigit() or (next_ch in self.symbols) or next_ch.isalpha() or (
                             next_ch in self.whitespaces)):
                         index += 1
                         self.line_pointer = index
                         raise InvalidInput('Invalid input', self.lineno, ch + next_ch)
+                # if ch == '/':
+                #     next_ch = line[index]
+                #     if next_ch != '*':
+                #         self.line_pointer = index
+                #         raise InvalidInput('Invalid input', self.lineno, ch + next_ch)
 
                 find_token = True
-
-
             elif ch.isdigit() and (token_type is None or token_type == TokenTypes.NUM):  # number
                 if token_type is None:
                     token_type = TokenTypes.NUM
                 current_token += ch
                 index += 1
 
-                if line[index] in self.whitespaces or \
+                if len(line) == index or line[index] in self.whitespaces or \
                         line[index] in self.symbols or \
                         line[index:index + 2] == '/*':
                     find_token = True
@@ -100,6 +107,22 @@ class Scanner:
 
                 if line is None:
                     return -1, Token(TokenTypes.EOF, 'EOF')
+            elif ch == '/' and len(line) == index + 1:
+                self.lineno += 1
+                self.line_pointer = 0
+                raise InvalidInput('Invalid input', self.lineno - 1, ch)
+
+            elif ch == '/' and not (
+                    line[index + 1].isdigit() or (line[index + 1] in self.symbols) or line[index + 1].isalpha() or (
+                    line[index + 1] in self.whitespaces)):
+                if line[index + 1] == '/':
+                    index += 1
+                    self.line_pointer = index
+                    raise InvalidInput('Invalid input', self.lineno, ch)
+                else:
+                    index += 2
+                    self.line_pointer = index
+                    raise InvalidInput('Invalid input', self.lineno, ch + line[index - 1])
 
             elif ch in self.whitespaces:  # whitespace
                 index += 1
@@ -124,6 +147,13 @@ class Scanner:
                         self.lineno += 1
                         self.line_pointer = 0
                     raise UnmatchedComment('Unmatched comment', current_line, '*/')
+
+                elif ch == '*' and not (
+                        line[index].isdigit() or (line[index] in self.symbols) or line[index].isalpha() or (
+                        line[index] in self.whitespaces)):
+                    index += 1
+                    self.line_pointer = index
+                    raise InvalidInput('Invalid input', current_line, ch + line[index - 1])
 
                 raise InvalidInput('Invalid input', current_line, current_token + ch)
 
