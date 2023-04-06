@@ -16,13 +16,13 @@ class Scanner:
     def get_next_token(self):
         index = self.line_pointer
         if self.lineno - 1 >= len(self.lines):
-            return -1, 'EOF'
+            return -1, Token(TokenTypes.EOF, 'EOF')
         line = self.lines[self.lineno - 1]
         while len(line) == 0:
             self.lineno += 1
             line = self.lines[self.lineno - 1]
             if self.lineno - 1 > len(self.lines):
-                return -1, 'EOF'
+                return -1, Token(TokenTypes.EOF, 'EOF')
 
         current_token = ''
         token_type = None
@@ -90,7 +90,7 @@ class Scanner:
                     index = 0
 
                 if line is None:
-                    return -1, 'EOF'
+                    return -1, Token(TokenTypes.EOF, 'EOF')
 
             elif ch in self.whitespaces:  # whitespace
                 index += 1
@@ -131,6 +131,7 @@ class TokenTypes(Enum):
     ID = 'ID'
     KEYWORD = 'KEYWORD'
     SYMBOL = 'SYMBOL'
+    EOF = 'EOF'
 
 
 class Token:
