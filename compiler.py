@@ -12,7 +12,7 @@ scanner = Scanner('input.txt')
 token = None
 line = 1
 
-symbol_list = set()
+symbol_list = ['break', 'else', 'if', 'int', 'repeat', 'return', 'until', 'void']
 lexical_error = dict()
 token_list = dict()
 
@@ -25,8 +25,9 @@ while token != 'EOF' and line != -1:  # -1 is returned when there is no more lin
 
         token_list[line].append(token)
 
-        if token.token_type == TokenTypes.ID or token.token_type == TokenTypes.KEYWORD:
-            symbol_list.add(token.value)
+        if (token.token_type == TokenTypes.ID or token.token_type == TokenTypes.KEYWORD) and \
+                token.value not in symbol_list:
+            symbol_list.append(token.value)
 
     except exceptions.InvalidInput as e:
         line = e.error_line
