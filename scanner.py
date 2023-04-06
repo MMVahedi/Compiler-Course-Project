@@ -69,7 +69,7 @@ class Scanner:
                 dummy = 0
                 dummy_comment = ''
                 while line[index:index + 2] != '*/':
-                    if dummy <= 7:
+                    if dummy <= 6:
                         dummy_comment += line[index]
                         dummy += 1
                     index += 1
@@ -106,7 +106,7 @@ class Scanner:
                     self.lineno += 1
                     self.line_pointer = 0
                 if token_type == TokenTypes.NUM and ch.isalpha():
-                    raise InvalidNumber('Invalid number', self.lineno, current_token)
+                    raise InvalidNumber('Invalid number', self.lineno, current_token + ch)
                 if ch == '*' and line[index] == '/':
                     index += 1
                     if index >= len(line):
@@ -114,8 +114,7 @@ class Scanner:
                         self.line_pointer = 0
                     raise UnmatchedComment('Unmatched comment', self.lineno, '*/')
 
-                raise InvalidInput('Invalid input', self.lineno, ch)
-
+                raise InvalidInput('Invalid input', self.lineno, current_token + ch)
 
         self.line_pointer = index
         if index == len(line):
