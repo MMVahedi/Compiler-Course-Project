@@ -48,11 +48,6 @@ class Scanner:
                         index += 1
                         self.line_pointer = index
                         raise InvalidInput('Invalid input', self.lineno, ch + next_ch)
-                # if ch == '/':
-                #     next_ch = line[index]
-                #     if next_ch != '*':
-                #         self.line_pointer = index
-                #         raise InvalidInput('Invalid input', self.lineno, ch + next_ch)
 
                 find_token = True
             elif ch.isdigit() and (token_type is None or token_type == TokenTypes.NUM):  # number
