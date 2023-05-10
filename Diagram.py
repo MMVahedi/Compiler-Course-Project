@@ -1,4 +1,4 @@
-from Grammer import *
+from Grammer import Non_Terminal, Rule
 
 
 class state:
