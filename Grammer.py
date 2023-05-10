@@ -1,3 +1,6 @@
+import Diagram
+
+
 class Rule:
     All_Rules = []
 
@@ -30,6 +33,8 @@ class Non_Terminal:
 
 def initializer():
     make_non_terminals()
+    Diagram.initializer(Non_Terminal.All_Non_Terminals)
+
 
 
 def make_non_terminals():
