@@ -1,6 +1,6 @@
 class Non_Terminal:
-    All_Non_Terminals = []
-    start = None
+    All_Non_Terminals = {}
+    start = 'Program'
 
     def __init__(self, name):
         self.name = name
@@ -8,6 +8,12 @@ class Non_Terminal:
         self.first = [all_first_sets[name]]
         self.follow = [all_follow_sets[name]]
         Non_Terminal.All_Non_Terminals[name] = self
+
+    @classmethod
+    def get_non_terminal_by_name(cls, name):
+        if name in cls.All_Non_Terminals.keys():
+            return cls.All_Non_Terminals[name]
+        raise "invalid non-terminal!"
 
     def add_rule(self, rule_lst):
         self.rules.append(Rule(rule_lst))
@@ -19,24 +25,6 @@ class Rule:
     def __init__(self, rhs):
         self.rhs = rhs
         Rule.All_Rules.append(self)
-
-
-# # Test Functions
-# def find_unique_terminals(dict):
-#     unique = []
-#     for lst in dict.values():
-#         for terminal in lst:
-#             if not terminal in unique:
-#                 unique.append(terminal)
-#     return unique
-#
-#
-# def find_unique_non_terminals(dict):
-#     unique = []
-#     for non_terminal in dict.keys():
-#             if not non_terminal in unique:
-#                 unique.append(non_terminal)
-#     return unique
 
 
 # First
