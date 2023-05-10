@@ -7,6 +7,7 @@ class Non_Terminal:
         self.rules = []
         self.first = [all_first_sets[name]]
         self.follow = [all_follow_sets[name]]
+        self.start_state_id = None
         Non_Terminal.All_Non_Terminals[name] = self
 
     @classmethod
