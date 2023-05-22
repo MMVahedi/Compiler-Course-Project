@@ -1,10 +1,11 @@
 from Grammer import Non_Terminal
+from scanner import TokenTypes, Token
 
 
 class state:
     All_States = {}
 
-    def __init__(self, owner, type='middle'):
+    def __init__(self, owner: Non_Terminal, type='middle'):
         self.owner = owner
         self.type = type  # 'start' 'final' or 'middle'
         self.outgoing_edges = []  # id of outgoing edges
@@ -12,6 +13,33 @@ class state:
 
     def add_outgoing_edge(self, edge):
         self.add_outgoing_edge(edge)
+
+    def get_next_state(self, token: Token):
+        if token.token_type == TokenTypes.ID or token.token_type == TokenTypes.NUM:
+            token_label = token.token_type
+        else:
+            token_label = token.value
+        epsilon_edge = None
+        for edge in self.outgoing_edges:
+            if edge.label is Non_Terminal:
+                non_terminal = edge.label
+                if token_label in non_terminal.first:
+                    return "Non_terminal", non_terminal.start_state
+            elif edge.label is str:
+                if edge.label == token_label:
+                    return "Terminal", edge.destination
+            else:  # None = EPSILON
+                epsilon_edge = edge
+        if epsilon_edge is not None:
+            return "EPSILON", epsilon_edge.destination
+        # If did not return, means we have error, so we should handle it.
+        if self.type == 'start':
+            if token_label not in self.owner.follow:
+                return "Error", (1, token_label)
+            else:
+                return "Error", (2, self.owner.name)
+        else:
+            return "Error", (3, token_label)
 
 
 class Edge:
