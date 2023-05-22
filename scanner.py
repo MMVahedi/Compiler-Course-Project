@@ -14,6 +14,12 @@ class Scanner:
         self.keywords = ['if', 'else', 'void', 'int', 'repeat', 'break', 'until', 'return']
 
     def get_next_token(self):
+        flag = False
+        for i in range(self.lineno-1, len(self.lines)):
+            if self.lines[i] != '':
+                flag = True
+        if not flag:
+            return -1, Token(TokenTypes.EOF, 'EOF')
         index = self.line_pointer
         if self.lineno - 1 >= len(self.lines):
             return -1, Token(TokenTypes.EOF, 'EOF')
@@ -28,6 +34,11 @@ class Scanner:
         token_type = None
         find_token = False
         while not find_token:
+            while len(line) == 0:
+                self.lineno += 1
+                line = self.lines[self.lineno - 1]
+                if self.lineno - 1 > len(self.lines):
+                    return -1, Token(TokenTypes.EOF, 'EOF')
             ch = line[index]
             if (ch in self.symbols) and not (ch == '*' and line[index + 1] == '/') and ch != '/' and not (
                     ch == '*' and not (
@@ -157,7 +168,6 @@ class Scanner:
         if index == len(line):
             self.lineno += 1
             self.line_pointer = 0
-
         return current_line, Token(token_type, current_token)
 
 

@@ -9,36 +9,48 @@ class Parser:
         self.scanner = scanner
         Grammer.initializer()
         Diagram.initializer(Grammer.Non_Terminal.All_Non_Terminals)
+        self.current_token = None
+        self.current_line_number = 0
+        self.root = Node
+        self.errors = []
+
+    def get_parse_tree(self):
+        end = Node('$', parent=self.root)
+        tree = ''
+        for pre, _, node in RenderTree(self.root):
+            tree_str = u"%s%s" % (pre, node.name)
+            tree += tree_str.ljust(8) + '\n'
+        return tree
 
     def parse(self):
         start_non_terminal = Grammer.Non_Terminal.get_non_terminal_by_name(Grammer.Non_Terminal.Start_Non_Terminal)
-        root = Node(start_non_terminal.name, parnet=None)
-        line_number, token = self.scanner.get_next_token()
-        self.parse_help(line_number, token, start_non_terminal)
+        self.root = Node(start_non_terminal.name)
+        self.current_line_number, self.current_token = self.scanner.get_next_token()
+        self.parse_help(start_non_terminal, self.root)
 
-    def parse_help(self, line_number, token, non_terminal: Grammer.Non_Terminal):
-        current_token = token
-        current_line_number = line_number
+    def parse_help(self, non_terminal: Grammer.Non_Terminal, parent):
         current_state = non_terminal.start_state
         while current_state.type != 'end':
-            output_type, output = current_state.get_next_state(current_token)
+            output_type, output = current_state.get_next_state(self.current_token)
             if output_type == "Non_Terminal":
-                self.parse_help(current_token, output.label, current_line_number)
-                current_line_number, current_token = self.scanner.get_next_token()
+                new_child = Node(output.label.name, parent=parent)
+                self.parse_help(output.label, new_child)
                 current_state = output.destination
             elif output_type == "Terminal":
-                current_line_number, current_token = self.scanner.get_next_token()
-                current_state = output
+                current_state = output[0]
+                new_child = Node('({}, {})'.format(output[1], output[2]), parent=parent)
+                self.current_line_number, self.current_token = self.scanner.get_next_token()
             elif output_type == "EPSILON":
                 current_state = output
+                new_child = Node('epsilon', parent=parent)
             else:
                 error_type = output[0]
-                # TODO: handle error
-                error_message = generate_panic_mode_error_message(error_type, output[1], current_line_number)
+                error_message = generate_panic_mode_error_message(error_type, output[1], self.current_line_number)
+                self.errors.append(error_message)
                 if error_type == 1:
-                    current_line_number, current_token = self.scanner.get_next_token()
+                    self.current_line_number, self.current_token = self.scanner.get_next_token()
                 elif error_type == 2:
-                    return None
+                    current_state = output[2].destination
                 else:
                     current_state = output[2].destination
         return None

@@ -13,8 +13,8 @@ class Non_Terminal:
     def __init__(self, name):
         self.name = name
         self.rules = []
-        self.first = [all_first_sets[name]]
-        self.follow = [all_follow_sets[name]]
+        self.first = all_first_sets[name]
+        self.follow = all_follow_sets[name]
         self.start_state = None
         Non_Terminal.All_Non_Terminals[name] = self
 
@@ -81,7 +81,7 @@ def make_non_terminals():
 
     # Rules
     Program.add_rule([Declaration_list])
-    Declaration_list.add_rule([Declaration])
+    Declaration_list.add_rule([Declaration, Declaration_list])
     Declaration_list.add_rule([None])
     Declaration.add_rule([Declaration_initial, Declaration_prime])
     Declaration_initial.add_rule([Type_specifier, 'ID'])
