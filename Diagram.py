@@ -12,7 +12,7 @@ class state:
         state.All_States[owner] = self
 
     def add_outgoing_edge(self, edge):
-        self.add_outgoing_edge(edge)
+        self.outgoing_edges.append(edge)
 
     def get_next_state(self, token: Token):
         if token.token_type == TokenTypes.ID or token.token_type == TokenTypes.NUM:
@@ -20,26 +20,28 @@ class state:
         else:
             token_label = token.value
         epsilon_edge = None
+        error_edge = None
         for edge in self.outgoing_edges:
             if edge.label is Non_Terminal:
                 non_terminal = edge.label
                 if token_label in non_terminal.first:
-                    return "Non_terminal", non_terminal.start_state
+                    return "Non_terminal", edge
             elif edge.label is str:
                 if edge.label == token_label:
                     return "Terminal", edge.destination
             else:  # None = EPSILON
                 epsilon_edge = edge
+            error_edge = edge
         if epsilon_edge is not None:
             return "EPSILON", epsilon_edge.destination
         # If did not return, means we have error, so we should handle it.
         if self.type == 'start':
             if token_label not in self.owner.follow:
-                return "Error", (1, token_label)
+                return "Error", (1, token_label, error_edge)
             else:
-                return "Error", (2, self.owner.name)
+                return "Error", (2, self.owner.name, error_edge)
         else:
-            return "Error", (3, token_label)
+            return "Error", (3, token_label, error_edge)
 
 
 class Edge:
@@ -60,9 +62,9 @@ def generate_diagram_for_given_non_terminal(non_terminal: Non_Terminal):
     end = state(non_terminal.name, type='end')
     for rule in non_terminal.rules:
         current_state = start
-        for i in range(len(rule)):
-            token = rule[i]
-            if i == len(rule) - 1:
+        for i in range(len(rule.rhs)):
+            token = rule.rhs[i]
+            if i == len(rule.rhs) - 1:
                 edge = Edge(token, current_state, end)
                 current_state.add_outgoing_edge(edge)
             else:
