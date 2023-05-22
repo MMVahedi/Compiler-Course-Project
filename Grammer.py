@@ -11,14 +11,14 @@ class Rule:
 
 class Non_Terminal:
     All_Non_Terminals = {}
-    start = 'Program'
+    Start_Non_Terminal = 'Program'
 
     def __init__(self, name):
         self.name = name
         self.rules = []
         self.first = [all_first_sets[name]]
         self.follow = [all_follow_sets[name]]
-        self.start_state_id = None
+        self.start_state = None
         Non_Terminal.All_Non_Terminals[name] = self
 
     @classmethod
@@ -34,7 +34,6 @@ class Non_Terminal:
 def initializer():
     make_non_terminals()
     Diagram.initializer(Non_Terminal.All_Non_Terminals)
-
 
 
 def make_non_terminals():

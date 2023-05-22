@@ -2,19 +2,13 @@ from Grammer import Non_Terminal
 
 
 class state:
-    All_States = []
-    number_of_all_states = 0
+    All_States = {}
 
     def __init__(self, owner, type='middle'):
-        self.id = id
         self.owner = owner
         self.type = type  # 'start' 'final' or 'middle'
         self.outgoing_edges = []  # id of outgoing edges
-        state.All_States.append(self)
-
-    @classmethod
-    def get_state_by_id(cls, s_id):
-        return cls.All_States[s_id]
+        state.All_States[owner] = self
 
     def add_outgoing_edge(self, edge):
         self.add_outgoing_edge(edge)
@@ -34,7 +28,7 @@ def initializer(All_Non_Terminals):
 
 def generate_diagram_for_given_non_terminal(non_terminal: Non_Terminal):
     start = state(non_terminal.name, type='start')
-    non_terminal.start_state_id = start.id
+    non_terminal.start_state = start
     end = state(non_terminal.name, type='end')
     for rule in non_terminal.rules:
         current_state = start

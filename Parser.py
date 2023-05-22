@@ -1,5 +1,9 @@
 from anytree import Node, RenderTree
+from scanner import Scanner
 
+class Parser():
+    def __init__(self, scanner: Scanner):
+        self.scanner = scanner
 
 def generate_panic_mode_error_message(type, token, line_number):
     # error type: {1,2,3, 4}. 1,2 and 3 are based on slides and 4 is for Unexpected EOF.
